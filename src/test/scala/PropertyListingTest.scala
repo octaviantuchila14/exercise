@@ -1,4 +1,5 @@
-import scala.util.Success
+import scala.util.{Failure, Success}
+import java.time.Instant
 
 /**
   * Created by default on 16/11/16.
@@ -27,5 +28,12 @@ class PropertyListingTest extends org.scalatest.FunSuite {
     val octavian = Person("Octavian", Male)
     val newProperty = property.addPerson(octavian).get
     assert(newProperty.removePerson(octavian).get.occupants == List.empty[Person])
+  }
+
+  test("can not modify after issueing a contract") {
+    val property = Property(1, "someName", 5, List.empty[Person], None)
+    val contract = Contract(List((Person("Mike", Male), Instant.now()), (Person("Hannah", Female), Instant.now())), Some(Instant.now()))
+    val newProperty: Property = property.sign(Some(contract)).get
+    assert(newProperty.changeMaximumOccupancy(10).failed.get.getMessage == "Contract already signed")
   }
 }
