@@ -5,6 +5,8 @@ case class Property(uuid: Int, name: String, maximumOccupancy: Int, occupants: L
     def sign(newContract: Option[Contract]): Try[Property] = {
       if(contract.nonEmpty) {
          Failure(new Exception("Contract already signed"))
+      } else if(newContract.nonEmpty && newContract.get.signed.map(_._1).forall(occupants contains _)) {
+        Failure(new Exception("Not everyone signed the contract"))
       } else {
         Success(this.copy(contract=newContract))
       }

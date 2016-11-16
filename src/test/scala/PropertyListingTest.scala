@@ -36,4 +36,10 @@ class PropertyListingTest extends org.scalatest.FunSuite {
     val newProperty: Property = property.sign(Some(contract)).get
     assert(newProperty.changeMaximumOccupancy(10).failed.get.getMessage == "Contract already signed")
   }
+
+  test("all persons must sign the contract before it's executed") {
+    val property = Property(1, "someName", 5, List(Person("Mike", Male), Person("Hannah", Female)), None)
+    val contract = Contract(List((Person("Mike", Male), Instant.now())), Some(Instant.now()))
+    assert(property.sign(Some(contract)).failed.get.getMessage == "Not everyone signed the contract")
+  }
 }
