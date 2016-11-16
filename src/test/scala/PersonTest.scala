@@ -14,4 +14,10 @@ class PersonTest extends FunSuite {
     val person = Person("John", Male)
     assert(person.updateName("Wendy").updateGender(Female) == Person("Wendy", Female))
   }
+
+  test("name must be unique in a property") {
+    val property: Property = Property(1, "someName", 5, List(Person("Alex", Female)), None)
+    val newPerson: Person = Person("Alex", Male)
+    assert(property.addPerson(newPerson).failed.get.getMessage == "Name must be unique in a property")
+  }
 }

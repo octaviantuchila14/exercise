@@ -23,10 +23,12 @@ case class Property(uuid: Int, name: String, maximumOccupancy: Int, occupants: L
     def addPerson(person: Person): Try[Property] = {
       if(contract.nonEmpty) {
         Failure(new Exception("Contract already signed"))
-      }else if(occupants.length + 1 <= maximumOccupancy) {
-        Success(this.copy(occupants = occupants ++ List(person)))
-      } else {
+      } else if(occupants.length + 1 > maximumOccupancy) {
         Failure(new Exception("Too many people"))
+      } else if(occupants.map(_.name) contains person.name) {
+        Failure(new Exception("Name must be unique in a property"))
+      } else {
+        Success(this.copy(occupants = occupants ++ List(person)))
       }
     }
 
