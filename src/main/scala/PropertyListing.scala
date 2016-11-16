@@ -1,11 +1,30 @@
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 
 case class Property(uuid: Int, name: String, maximumOccupancy: Int, occupants: List[Person], contract: Option[Contract]) {
-    def changeMaximumOccupancy(newMax: Int): Property = this.copy(maximumOccupancy=newMax)
+    def changeMaximumOccupancy(newMax: Int): Try[Property] = {
+      if(maximumOccupancy > 0) {
+        Success(this.copy(maximumOccupancy=newMax))
+      } else {
+        Failure(new Exception("Maximum number of occupants must be positive"))
+      }
+    }
 
-    def addPerson(person: Person): Property = this.copy(occupants = occupants ++ List(person))
+    def addPerson(person: Person): Try[Property] = {
+      if(occupants.length + 1 <= maximumOccupancy) {
+        Success(this.copy(occupants = occupants ++ List(person)))
+      } else {
+        Failure(new Exception("Too many people"))
+      }
+    }
 
-    def removePerson(person: Person): Property = this.copy(occupants = occupants.filter(_ != person))
+    def removePerson(person: Person): Try[Property] = {
+      if(occupants.contains(person)) {
+        Success(this.copy(occupants = occupants.filter(_ != person)))
+      } else {
+        Failure(new Exception("Person doesn't exist"))
+      }
+    }
 }
 
 class PropertyListing {
@@ -16,8 +35,11 @@ class PropertyListing {
     records += property.uuid -> property
   }
 
-  def view(uuid: Int): Property = {
-    records(uuid)
+  def view(uuid: Int): Try[Property] = {
+    records.get(uuid) match {
+      case Some(r) => Success(r)
+      case None => Failure(new Exception("Property not found"))
+    }
   }
 }
 
